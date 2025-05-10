@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CK444 Premium Auth</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        casinoGold: '#FFD700',
+                        darkBlack: '#0a0a0a',
+                        neon: '#00ffae',
+                        casinoRed: '#ff4444',
+                    },
+                    fontFamily: {
+                        casino: ['Orbitron', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a, #111);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .neon-border {
+            border: 1px solid rgba(0, 255, 174, 0.4);
+            box-shadow: 0 0 20px rgba(0, 255, 174, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .neon-border:active {
+            transform: scale(0.98);
+        }
+
+        input:focus,
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 10px #00ffae;
+        }
+    </style>
+</head>
+
+<body class="text-white flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md p-6 neon-border rounded-2xl bg-black bg-opacity-70 backdrop-blur-md shadow-lg">
+        <div class="text-center mb-5">
+            <img src="https://i.postimg.cc/zvM33YV2/meta-tags.png" alt="CK444 Logo" class="mx-auto w-16 sm:w-20 h-auto mb-2 rounded-full shadow-lg border-2 border-casinoGold" />
+            <h1 class="text-2xl font-bold mt-2">CK444 Casino</h1>
+            <p class="text-gray-400 text-xs sm:text-sm">Sign up to unlock exclusive rewards</p>
+        </div>
+        <div class="space-y-4">
+            <!-- Name Field (for Sign Up) -->
+            <input id="name" type="text" placeholder="Full Name" class="w-full p-3 rounded-md bg-zinc-900 border border-zinc-600 text-sm focus:ring-neon" />
+
+            <!-- Email Field -->
+            <input id="email" type="email" placeholder="Email" class="w-full p-3 rounded-md bg-zinc-900 border border-zinc-600 text-sm focus:ring-neon" />
+
+            <!-- Password Field -->
+            <input id="password" type="password" placeholder="Password" class="w-full p-3 rounded-md bg-zinc-900 border border-zinc-600 text-sm focus:ring-neon" />
+
+            <!-- Referral Code Field (for Sign Up) -->
+            <input id="referCode" type="text" placeholder="Referral Code (Optional)" class="w-full p-3 rounded-md bg-zinc-900 border border-zinc-600 text-sm focus:ring-neon" />
+
+            <!-- Login / Sign Up Button -->
+            <button onclick="handleAuth()" id="authButton" class="w-full bg-neon text-black font-semibold py-2 rounded-md hover:bg-emerald-300 transition">Sign Up</button>
+
+            <!-- Google Login Button -->
+            <button onclick="googleLogin()" class="w-full bg-white text-black py-2 rounded-md flex items-center justify-center gap-2 shadow hover:bg-gray-200 transition">
+                <img src="https://i.postimg.cc/25cYCFq2/google-symbol.png" class="w-5 h-5" alt="Google Logo">
+                Sign in with Google
+            </button>
+
+            <!-- Toggle between Sign Up and Login -->
+            <div class="flex justify-between text-xs text-gray-400 mt-1">
+                <button onclick="toggleForm()" class="hover:underline" id="toggleLink">Already have an account? Login</button>
+                <button onclick="forgotPassword()" class="hover:underline">Forgot Password?</button>
+            </div>
+        </div>
+
+        <p id="message" class="text-center text-sm text-red-400 mt-3"></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDM70Od9M9gwGOHMXPpnZTeKmhTCjtdH_M",
+            authDomain: "ck444-2f670.firebaseapp.com",
+            projectId: "ck444-2f670",
+            storageBucket: "ck444-2f670.firebasestorage.app",
+            messagingSenderId: "919296617459",
+            appId: "1:919296617459:web:f652c7dabf7775c00a8086",
+            measurementId: "G-4M0FVQZV11"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        getAnalytics(app);
+
+        let isLogin = false; // Default: Sign Up Form First
+
+        window.toggleForm = () => {
+            isLogin = !isLogin;
+            document.getElementById("authButton").innerText = isLogin ? "Login" : "Sign Up";
+            document.getElementById("toggleLink").innerText = isLogin
+                ? "Don't have an account? Sign up"
+                : "Already have an account? Login";
+            document.getElementById("message").innerText = "";
+
+            // Show/Hide fields based on the form type
+            document.getElementById("name").style.display = isLogin ? 'none' : 'block';
+            document.getElementById("referCode").style.display = isLogin ? 'none' : 'block';
+        };
+
+        // Read referral code from URL
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Set referral code if available
+        window.onload = function () {
+            const referCode = getUrlParameter("ref");
+            if (referCode) {
+                document.getElementById("referCode").value = referCode;
+            }
+        };
+
+        // Handle authentication (Login or Sign Up)
+        window.handleAuth = async () => {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const name = document.getElementById("name").value;
+            const referCode = document.getElementById("referCode").value;
+
+            try {
+                if (isLogin) {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    // Save name and referCode to Firestore
+                    const user = auth.currentUser;
+                    if (user) {
+                        const db = firebase.firestore();
+                        await db.collection('users').doc(user.uid).set({
+                            name,
+                            email,
+                            referCode: referCode || null,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                }
+                window.location.href = "dashboard.html";
+            } catch (error) {
+                document.getElementById("message").innerText = error.message;
+            }
+        };
+
+        // Google Authentication
+        window.googleLogin = async () => {
+            try {
+                await signInWithPopup(auth, new GoogleAuthProvider());
+                window.location.href = "dashboard.html";
+            } catch (error) {
+                document.getElementById("message").innerText = error.message;
+            }
+        };
+
+        // Forgot Password
+        window.forgotPassword = async () => {
+            const email = document.getElementById("email").value;
+            try {
+                await sendPasswordResetEmail(auth, email);
+                document.getElementById("message").innerText = "Password reset email sent.";
+            } catch (error) {
+                document.getElementById("message").innerText = error.message;
+            }
+        };
+    </script>
+</body>
+
+</html>

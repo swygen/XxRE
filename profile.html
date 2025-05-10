@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Casino Premium Profile</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDM70Od9M9gwGOHMXPpnZTeKmhTCjtdH_M",
+      authDomain: "ck444-2f670.firebaseapp.com",
+      databaseURL: "https://ck444-2f670-default-rtdb.firebaseio.com",
+      projectId: "ck444-2f670",
+      storageBucket: "ck444-2f670.appspot.com",
+      messagingSenderId: "919296617459",
+      appId: "1:919296617459:web:f652c7dabf7775c00a8086",
+      measurementId: "G-4M0FVQZV11"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const uid = "USER12345"; // Replace with dynamic UID
+    const nameRef = ref(db, 'users/' + uid + '/name');
+    const balanceRef = ref(db, 'users/' + uid + '/balance');
+
+    onValue(nameRef, (snapshot) => {
+      document.getElementById("username").innerText = snapshot.val() || "User";
+    });
+
+    onValue(balanceRef, (snapshot) => {
+      document.getElementById("balance").innerText = '৳' + (snapshot.val() || "0.00");
+    });
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Orbitron', sans-serif;
+      background: radial-gradient(circle at center, #1f1c2c, #928dab);
+      color: #fff;
+    }
+
+    .profile-card {
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      border-radius: 20px;
+      padding: 35px;
+      max-width: 480px;
+      margin: auto;
+      box-shadow: 0 0 30px rgba(0,0,0,0.6);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(from 90deg, #ff416c, #ff4b2b, #ff416c);
+      animation: rotate 6s linear infinite;
+      z-index: 0;
+      opacity: 0.2;
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .profile-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .profile-card img {
+      border-radius: 50%;
+      border: 4px solid #ffcc00;
+      width: 100px;
+      height: 100px;
+    }
+
+    h3#username {
+      font-size: 26px;
+      margin: 15px 0 5px;
+      color: #ffcc00;
+    }
+
+    h4 {
+      margin-top: 10px;
+      font-size: 20px;
+      color: #00ffd5;
+    }
+
+    p {
+      font-size: 15px;
+      color: #ccc;
+    }
+
+    .btn-custom {
+      background: linear-gradient(to right, #ff4b2b, #ff416c);
+      border: none;
+      color: white;
+      border-radius: 50px;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.3s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .btn-custom .material-icons-outlined {
+      margin-right: 8px;
+    }
+
+    .btn-custom:hover {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .logout-btn {
+      background: linear-gradient(to right, #d4145a, #fbb03b);
+      margin-top: 25px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="profile-card">
+    <img src="https://iili.io/3k4GuUu.jpg" alt="Avatar">
+    <br>
+    <h3 id="username">Loading...</h3>
+    <br>
+    <p>UID: USER12345</p>
+    <h4>Total Balance: <span id="balance">৳0.00</span></h4>
+<br> 
+<br>
+    <div class="button-grid">
+      <a href="wallet.html" class="btn btn-custom"><span class="material-icons-outlined">account_balance_wallet</span>Wallet</a>
+      <a href="deposit.html" class="btn btn-custom"><span class="material-icons-outlined">arrow_downward</span>Deposit</a>
+      <a href="withdraw.html" class="btn btn-custom"><span class="material-icons-outlined">arrow_upward</span>Withdraw</a>
+      <a href="vip.html" class="btn btn-custom"><span class="material-icons-outlined">star_border</span>VIP</a>
+      <a href="history.html" class="btn btn-custom"><span class="material-icons-outlined">history</span>History</a>
+      <a href="settings.html" class="btn btn-custom"><span class="material-icons-outlined">settings</span>Settings</a>
+      <a href="gifts.html" class="btn btn-custom"><span class="material-icons-outlined">card_giftcard</span>Gifts</a>
+      <a href="language.html" class="btn btn-custom"><span class="material-icons-outlined">language</span>Language</a>
+    </div>
+<br>
+<br>
+    <a href="logout.html" class="btn btn-custom logout-btn"><span class="material-icons-outlined">logout</span>Log Out</a>
+  </div>
+
+</body>
+</html>
